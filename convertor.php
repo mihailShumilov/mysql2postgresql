@@ -15,8 +15,11 @@ $oData = array();
 
 $oXml = simplexml_load_file($iFilePath);
 
+
 ob_start();
 $aDBs = (array)$oXml->{'database'};
+
+
 foreach ($aDBs['table_structure'] as $key => $val) {
     $tableName         = (string)$val->attributes()->name;
     $oData[$tableName] = array("fields" => array(), "types" => array(), "key" => array(), "primary" => array());
@@ -101,6 +104,29 @@ foreach ($oData as $tableName => $desc) {
                 $keyData['fields']
             ) . ");\n";
     }
+}
+
+foreach ($aDBs['table_data'] as $k => $tableData) {
+    $tableName = (string)$tableData->attributes()->name;
+    if (isset($tableData->row)) {
+
+        foreach ($tableData->row as $row) {
+            $fieldData = (array)$row->field;
+            unset($fieldData['@attributes']);
+            array_walk(
+                $fieldData,
+                function (&$tv, $tk) {
+                    $tv = addslashes($tv);
+                    if ("0000-00-00 00:00:00" == $tv) {
+                        $tv = "1971-01-01 00:00:01";
+                    }
+                }
+            );
+            echo "INSERT INTO $tableName VALUES(E'" . join("',E'", $fieldData) . "');\n";
+        }
+
+    }
+    echo "VACUUM FULL $tableName;\n";
 }
 
 $dumpData = ob_get_contents();

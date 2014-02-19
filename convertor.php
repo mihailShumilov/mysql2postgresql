@@ -9,12 +9,14 @@
 $options = getopt("i:o:", array("input-file:", "output-file:"));
 
 $iFilePath = $options["i"] ? $options["i"] : $options["input-file"];
+$oFilePath = $options["o"] ? $options["o"] : $options["output-file"];
 
 $oData = array();
 
 $oXml = simplexml_load_file($iFilePath);
 
-$aDBs = (array)$oXml->{database};
+ob_start();
+$aDBs = (array)$oXml->{'database'};
 foreach ($aDBs['table_structure'] as $key => $val) {
     $tableName         = (string)$val->attributes()->name;
     $oData[$tableName] = array("fields" => array(), "types" => array(), "key" => array(), "primary" => array());
@@ -39,7 +41,9 @@ foreach ($aDBs['table_structure'] as $key => $val) {
             $fieldStr .= "real ";
         } elseif ((string)$fieldData->attributes()->Type == "datetime") {
             $fieldStr .= "timestamp ";
-        } elseif ((string)$fieldData->attributes()->Type == "mediumtext") {
+        } elseif (((string)$fieldData->attributes()->Type == "mediumtext") || ((string)$fieldData->attributes(
+                )->Type == "tinytext")
+        ) {
             $fieldStr .= "text ";
         } elseif (substr((string)$fieldData->attributes()->Type, 0, 4) == "enum") {
             //Create custom type
@@ -80,7 +84,7 @@ foreach ($oData as $tableName => $desc) {
         echo "CREATE TYPE " . $customType . ";\n";
     }
 
-    echo "CREATE TABLE $tableName (\n";
+    echo "\nCREATE TABLE $tableName (\n";
     echo "\t";
     echo join(",\n\t", $oData[$tableName]["fields"]);
 
@@ -90,6 +94,16 @@ foreach ($oData as $tableName => $desc) {
     echo ");\n";
 
     foreach ($oData[$tableName]["key"] as $keyName => $keyData) {
-        echo "CREATE INDEX \"" . $keyName . "\" ON $tableName (" . join(",", $keyData['fields']) . ");\n";
+        echo "CREATE INDEX \"" . $tableName . "_" . $keyName . "\" ON $tableName (" . join(
+                ",",
+                $keyData['fields']
+            ) . ");\n";
     }
 }
+
+$dumpData = ob_get_contents();
+ob_end_clean();
+
+$fh = fopen($oFilePath, "w+");
+fwrite($fh, $dumpData);
+fclose($fh);

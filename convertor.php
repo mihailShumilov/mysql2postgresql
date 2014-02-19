@@ -84,6 +84,8 @@ foreach ($oData as $tableName => $desc) {
         echo "CREATE TYPE " . $customType . ";\n";
     }
 
+    echo "\nDROP TABLE IF EXISTS $tableName;\n";
+
     echo "\nCREATE TABLE $tableName (\n";
     echo "\t";
     echo join(",\n\t", $oData[$tableName]["fields"]);

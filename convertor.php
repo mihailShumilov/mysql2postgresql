@@ -137,8 +137,8 @@ function endElement($parser, $name)
             echo "=======WOR========\n";
             fwrite(
                 $fh,
-                "INSERT INTO {$lastTable} (" . join(",", array_keys($row)) . ") VALUES (E'" . join(
-                    "',E'",
+                "INSERT INTO {$lastTable} (\"" . join("\",\"", array_keys($row)) . "\") VALUES (E'" . join(
+                "',E'",
                     $row
                 ) . "');\n"
             );

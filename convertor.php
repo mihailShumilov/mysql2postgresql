@@ -54,11 +54,9 @@ function startElement($parser, $name, $attrs)
     global $row;
     global $lastRow;
     global $fieldOpen;
-    print "--------- Start element -----------\n";
 
     switch ($name) {
         case "table_structure":
-//            fwrite($fh, "CREATE TABLE {$attrs['name']} (\n");
             $tableFields         = array();
             $tableFields['name'] = $attrs['name'];
             break;
@@ -83,8 +81,6 @@ function startElement($parser, $name, $attrs)
             break;
     }
 
-    print $name . "\n";
-    print_r($attrs);
 }
 
 function endElement($parser, $name)
@@ -132,13 +128,10 @@ function endElement($parser, $name)
             $tableData = false;
             break;
         case "row":
-            echo "=======ROW========\n";
-            print_r($row);
-            echo "=======WOR========\n";
             fwrite(
                 $fh,
                 "INSERT INTO {$lastTable} (\"" . join("\",\"", array_keys($row)) . "\") VALUES (E'" . join(
-                "',E'",
+                    "',E'",
                     $row
                 ) . "');\n"
             );
@@ -150,8 +143,6 @@ function endElement($parser, $name)
             break;
     }
 
-    print $name . "\n";
-    print "--------- End element ---------\n";
 }
 
 function characterData($parser, $data)
@@ -162,18 +153,14 @@ function characterData($parser, $data)
     global $lastRow;
     global $fieldOpen;
 
-    print "-- start data --\n";
     if ($tableData && $fieldOpen) {
         $data = addslashes($data);
         if ("0000-00-00 00:00:00" == $data) {
             $data = "1971-01-01 00:00:01";
         }
-        print "SET `{$lastRow}` <=> `{$data}`\n";
         $row[$lastRow] = $data;
 
     }
-
-    print "-- end data --\n";
 }
 
 function convert_field_data($attrs)
@@ -248,27 +235,4 @@ function convert_key_data($attrs)
 
 exit(0);
 
-
-foreach ($aDBs['table_data'] as $k => $tableData) {
-    $tableName = (string)$tableData->attributes()->name;
-    if (isset($tableData->row)) {
-
-        foreach ($tableData->row as $row) {
-            $fieldData = (array)$row->field;
-            unset($fieldData['@attributes']);
-            array_walk(
-                $fieldData,
-                function (&$tv, $tk) {
-                    $tv = addslashes($tv);
-                    if ("0000-00-00 00:00:00" == $tv) {
-                        $tv = "1971-01-01 00:00:01";
-                    }
-                }
-            );
-            echo "INSERT INTO $tableName VALUES(E'" . join("',E'", $fieldData) . "');\n";
-        }
-
-    }
-    echo "VACUUM FULL $tableName;\n";
-}
 

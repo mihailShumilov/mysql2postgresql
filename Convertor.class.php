@@ -208,7 +208,7 @@ class Convertor
                 $fieldStr .= "real ";
             } elseif ($attrs['Type'] == "datetime") {
                 $fieldStr .= "timestamp ";
-            } elseif (($attrs['Type'] == "mediumtext") || ($attrs['Type'] == "tinytext")
+            } elseif (( $attrs['Type'] == "mediumtext" ) || ( $attrs['Type'] == "tinytext" ) || ( $attrs['Type'] == "longtext" )
             ) {
                 $fieldStr .= "text ";
             } elseif (substr($attrs['Type'], 0, 4) == "enum") {

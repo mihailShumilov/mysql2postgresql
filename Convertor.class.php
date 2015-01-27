@@ -213,7 +213,7 @@ class Convertor
                 $fieldStr .= "text ";
             } elseif (substr($attrs['Type'], 0, 4) == "enum") {
                 //Create custom type
-                $dataType                     = "enum_" . $attrs['Field'];
+                $dataType = $this->lastTable . "_enum_" . $attrs['Field'];
                 $this->tableFields["types"][] = $dataType . " as " . $attrs['Type'];
                 $fieldStr .= $dataType . " ";
             } else {

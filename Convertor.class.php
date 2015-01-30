@@ -21,6 +21,7 @@ class Convertor
     private $lastRow = null;
     private $tableData = false;
     private $fieldOpen = false;
+    private $timestampType = "timestamp with timezone";
 
     public function __construct($params)
     {
@@ -206,8 +207,8 @@ class Convertor
                 $fieldStr .= "smallint ";
             } elseif (substr($attrs['Type'], 0, 5) == "float") {
                 $fieldStr .= "real ";
-            } elseif ($attrs['Type'] == "datetime") {
-                $fieldStr .= "timestamp ";
+            } elseif (( $attrs['Type'] == "datetime" ) || ( $attrs['Type'] == "timestamp" )) {
+                $fieldStr .= "{$this->timestampType} ";
             } elseif (( $attrs['Type'] == "mediumtext" ) || ( $attrs['Type'] == "tinytext" ) || ( $attrs['Type'] == "longtext" )
             ) {
                 $fieldStr .= "text ";

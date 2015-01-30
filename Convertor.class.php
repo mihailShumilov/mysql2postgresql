@@ -21,7 +21,8 @@ class Convertor
     private $lastRow = null;
     private $tableData = false;
     private $fieldOpen = false;
-    private $timestampType = "timestamp with timezone";
+    private $timestampType = "timestamp with time zone";
+    private $seq = false;
 
     public function __construct($params)
     {
@@ -111,6 +112,11 @@ class Convertor
             case "row":
                 $this->row = array();
                 break;
+            case "options":
+                if (isset( $attrs['Auto_increment'] )) {
+                    $this->setSeqValue( $attrs );
+                }
+                break;
         }
     }
 
@@ -149,6 +155,10 @@ class Convertor
                             ) . ");\n"
                         );
                     }
+                }
+                if ($this->seq) {
+                    fwrite( $this->oFh, $this->seq );
+                    $this->seq = false;
                 }
                 break;
             case "table_data":
@@ -250,6 +260,13 @@ class Convertor
             if ($attrs['Non_unique'] == 0) {
                 $this->tableFields["key"][$keyName]["uniq"] = true;
             }
+        }
+    }
+
+    private function setSeqValue( $attrs )
+    {
+        if (isset( $attrs['Auto_increment'] )) {
+            $this->seq = "SELECT setval('{$attrs['Name']}_{$this->tableFields["primary"][0]}_seq', {$attrs['Auto_increment']});\n";
         }
     }
 } 

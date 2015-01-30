@@ -127,6 +127,7 @@ class Convertor
 
                 if (array_key_exists("types", $this->tableFields)) {
                     foreach ($this->tableFields["types"] as $customType) {
+                        fwrite( $this->oFh, "DROP TYPE IF EXISTS {$customType};\n" );
                         fwrite($this->oFh, "CREATE TYPE " . $customType . ";\n");
                     }
                 }
@@ -224,7 +225,7 @@ class Convertor
                 $fieldStr .= "text ";
             } elseif (substr($attrs['Type'], 0, 4) == "enum") {
                 //Create custom type
-                $dataType = $this->lastTable . "_enum_" . $attrs['Field'];
+                $dataType = $this->tableFields['name'] . "_enum_" . $attrs['Field'];
                 $this->tableFields["types"][] = $dataType . " as " . $attrs['Type'];
                 $fieldStr .= $dataType . " ";
             } else {

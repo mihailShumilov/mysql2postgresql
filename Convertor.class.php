@@ -166,13 +166,16 @@ class Convertor
                 $this->tableData = false;
                 break;
             case "row":
+                array_walk( $this->row, function ( &$item, $key ) {
+                    $item = str_replace( "'", "''", $item );
+                } );
                 fwrite(
                     $this->oFh,
                     "INSERT INTO {$this->lastTable} (\"" . join(
                         "\",\"",
                         array_keys($this->row)
-                    ) . "\") VALUES (E'" . join(
-                        "',E'",
+                    ) . "\") VALUES ('" . join(
+                        "','",
                         $this->row
                     ) . "');\n"
                 );

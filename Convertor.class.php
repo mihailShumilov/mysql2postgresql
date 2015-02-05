@@ -167,7 +167,7 @@ class Convertor
                 break;
             case "row":
                 array_walk( $this->row, function ( &$item, $key ) {
-                    $item = str_replace( "'", "''", $item );
+                    $item = pg_escape_string( $item );
                 } );
                 fwrite(
                     $this->oFh,

@@ -126,8 +126,8 @@ class Convertor
             case "table_structure":
 
                 if (array_key_exists("types", $this->tableFields)) {
-                    foreach ($this->tableFields["types"] as $customType) {
-                        fwrite( $this->oFh, "DROP TYPE IF EXISTS {$customType};\n" );
+                    foreach ($this->tableFields["types"] as $customTypeName => $customType) {
+                        fwrite( $this->oFh, "DROP TYPE IF EXISTS {$customTypeName};\n" );
                         fwrite($this->oFh, "CREATE TYPE " . $customType . ";\n");
                     }
                 }
@@ -229,7 +229,7 @@ class Convertor
             } elseif (substr($attrs['Type'], 0, 4) == "enum") {
                 //Create custom type
                 $dataType = $this->tableFields['name'] . "_enum_" . $attrs['Field'];
-                $this->tableFields["types"][] = $dataType . " as " . $attrs['Type'];
+                $this->tableFields["types"][$dataType] = $dataType . " as " . $attrs['Type'];
                 $fieldStr .= $dataType . " ";
             } else {
                 $fieldStr .= $attrs['Type'] . " ";

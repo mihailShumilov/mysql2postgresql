@@ -24,6 +24,8 @@
         private $timestampType = "timestamp with time zone";
         private $seq = false;
         private $insertRowField = array();
+        private $maxBatchCount = 200;
+        private $batchCount = 0;
 
         public function __construct( $params )
         {
@@ -36,6 +38,13 @@
                 $this->oFileName = $params['oFileName'];
             } else {
                 throw new Exception( "Output file name not set" );
+            }
+            if (isset( $params['batchCount'] ) && $params['batchCount']) {
+                if (filter_var( $params['batchCount'], FILTER_VALIDATE_INT )) {
+                    $this->maxBatchCount = $params['batchCount'];
+                } else {
+                    throw new Exception( "Parameter `batchCount` must be positive integer" );
+                }
             }
             $this->checkFiles();
         }
@@ -107,6 +116,7 @@
                     $this->convert_key_data( $attrs );
                     break;
                 case "table_data":
+                    $this->batchCount = 0;
                     $this->tableData = true;
                     $this->lastTable = $attrs['name'];
                     break;
@@ -175,7 +185,14 @@
                     array_walk( $this->row, function ( &$item, $key ) {
                         $item = pg_escape_string( $item );
                     } );
-                    if (empty( $this->insertRowField )) {
+                    if (empty( $this->insertRowField ) || ( $this->maxBatchCount == $this->batchCount )) {
+                        if ($this->maxBatchCount == $this->batchCount) {
+                            fwrite(
+                                $this->oFh,
+                                ";\n"
+                            );
+                        }
+                        $this->batchCount = 0;
                         $this->insertRowField = $this->row;
                         fwrite(
                             $this->oFh,
@@ -196,6 +213,7 @@
                             $this->row
                         ) . "')"
                     );
+                    $this->batchCount ++;
                     break;
                 case "field":
                     if ($this->tableData) {

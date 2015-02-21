@@ -8,14 +8,16 @@
 
     require( "Convertor.class.php" );
 
-    $options = getopt( "i:o:tz::", array( "input-file:", "output-file:", "timestamp-with-timezone::" ) );
+    $options = getopt( "i:o:b::", array( "input-file:", "output-file:", "batch-count::" ) );
 
-    $iFilePath = $options["i"] ? $options["i"] : $options["input-file"];
-    $oFilePath = $options["o"] ? $options["o"] : $options["output-file"];
+    $iFilePath  = $options["i"] ? $options["i"] : $options["input-file"];
+    $oFilePath  = $options["o"] ? $options["o"] : $options["output-file"];
+    $batchCount = $options["b"] ? $options["b"] : ( $options["batch-count"] ? $options["batch-count"] : false );
 
     $conv = new Convertor( array(
-        "iFileName" => $iFilePath,
-        "oFileName" => $oFilePath
+        "iFileName"  => $iFilePath,
+        "oFileName"  => $oFilePath,
+        "batchCount" => $batchCount
     ) );
     $conv->run();
 

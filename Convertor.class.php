@@ -205,7 +205,7 @@
                         $this->insertRowField = $this->row;
                         fwrite(
                             $this->oFh,
-                            "INSERT INTO {$this->lastTable} (\"" . join(
+                            "INSERT INTO \"{$this->lastTable}\" (\"" . join(
                                 "\",\"",
                                 array_keys( $this->insertRowField )
                             ) . "\") VALUES \n"

@@ -136,14 +136,14 @@
             switch ($name) {
                 case "table_structure":
 
+                    fwrite( $this->oFh, "\nDROP TABLE IF EXISTS {$this->tableFields['name']};\n" );
+
                     if (array_key_exists( "types", $this->tableFields )) {
                         foreach ($this->tableFields["types"] as $customTypeName => $customType) {
                             fwrite( $this->oFh, "DROP TYPE IF EXISTS {$customTypeName};\n" );
                             fwrite( $this->oFh, "CREATE TYPE " . $customType . ";\n" );
                         }
                     }
-
-                    fwrite( $this->oFh, "\nDROP TABLE IF EXISTS {$this->tableFields['name']};\n" );
 
                     fwrite( $this->oFh, "\nCREATE TABLE {$this->tableFields['name']} (\n" );
                     fwrite( $this->oFh, "\t" );
@@ -159,9 +159,14 @@
 
                     if (array_key_exists( "key", $this->tableFields )) {
                         foreach ($this->tableFields["key"] as $keyName => $keyData) {
+                            $indexName = $this->tableFields['name'] . "_" . $keyName;
                             fwrite(
                                 $this->oFh,
-                                "CREATE " . ( $keyData["uniq"] ? "UNIQUE " : "" ) . "INDEX \"" . $this->tableFields['name'] . "_" . $keyName . "\" ON {$this->tableFields['name']} (" . join(
+                                "DROP INDEX IF EXISTS \"{$indexName}\";\n"
+                            );
+                            fwrite(
+                                $this->oFh,
+                                "CREATE " . ( $keyData["uniq"] ? "UNIQUE " : "" ) . "INDEX \"" . $indexName . "\" ON \"{$this->tableFields['name']}\" (" . join(
                                     ",",
                                     $keyData['fields']
                                 ) . ");\n"

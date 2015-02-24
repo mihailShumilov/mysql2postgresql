@@ -164,11 +164,15 @@
                                 $this->oFh,
                                 "DROP INDEX IF EXISTS \"{$indexName}\";\n"
                             );
+                            $fields = $keyData['fields'];
+                            array_walk( $fields, function ( &$item, $key ) {
+                                $item = "\"" . $item . "\"";
+                            } );
                             fwrite(
                                 $this->oFh,
                                 "CREATE " . ( $keyData["uniq"] ? "UNIQUE " : "" ) . "INDEX \"" . $indexName . "\" ON \"{$this->tableFields['name']}\" (" . join(
                                     ",",
-                                    $keyData['fields']
+                                    $fields
                                 ) . ");\n"
                             );
                         }

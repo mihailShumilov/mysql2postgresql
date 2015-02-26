@@ -314,7 +314,7 @@
         private function setSeqValue( $attrs )
         {
             if (isset( $attrs['Auto_increment'] )) {
-                $this->seq = "SELECT setval('{$attrs['Name']}_{$this->tableFields["primary"][0]}_seq', {$attrs['Auto_increment']});\n";
+                $this->seq = "SELECT setval('\"{$attrs['Name']}_{$this->tableFields["primary"][0]}_seq\"', {$attrs['Auto_increment']}, true);\n";
             }
         }
     }

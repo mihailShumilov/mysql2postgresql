@@ -67,7 +67,7 @@
             }
         }
 
-        public function __descruct()
+        public function __destruct()
         {
             fclose( $this->iFh );
             fclose( $this->oFh );

@@ -76,23 +76,19 @@
 
         public function run()
         {
-            $xml = xml_parser_create();
-
-            xml_set_element_handler( $xml, array( &$this, "start" ), array( &$this, "end" ) );
-            xml_set_character_data_handler( $xml, array( &$this, "data" ) );
-            xml_parser_set_option( $xml, XML_OPTION_CASE_FOLDING, false );
 
             $totalFileSize = filesize( $this->iFileName );
             $processed     = 0;
 
             echo "\nProcess:0%\r";
             while ($data = fread( $this->iFh, 4096 )) {
-                xml_parse( $xml, $data, feof( $this->iFh ) ) or die( "Can't parse XML data" );
+
+                echo $data . "\n";
+
                 $processed += 4096;
                 $percentage = round( $processed / $totalFileSize * 100, 2 );
                 echo "Processed: {$percentage}%\r";
             }
-            xml_parser_free( $xml );
             echo "\r";
             echo "Processed: 100%\n";
         }

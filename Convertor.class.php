@@ -220,7 +220,7 @@
                         );
                     }
                     foreach ($this->row as $n=>&$v) {
-						if (($v=='') && ($this->tableFields['null'][$n]===true)) {
+                        if (( $v == '' ) && ( isset( $this->tableFields['null'] ) ) && ( $this->tableFields['null'][$n] === true )) {
                             $v = 'NULL';
 						} else {
 							$v = "'".pg_escape_string($v)."'";

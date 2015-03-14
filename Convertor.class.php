@@ -11,6 +11,7 @@
 
         private $iFileName;
         private $oFileName;
+        private $exportStructure = true;
 
         private $iFh;
         private $oFh;
@@ -136,51 +137,54 @@
             switch ($name) {
                 case "table_structure":
 
-                    fwrite( $this->oFh, "\nDROP TABLE IF EXISTS \"{$this->tableFields['name']}\";\n" );
+					if ($this->exportStructure) {
 
-                    if (array_key_exists( "types", $this->tableFields )) {
-                        foreach ($this->tableFields["types"] as $customTypeName => $customType) {
-                            fwrite( $this->oFh, "DROP TYPE IF EXISTS \"{$customTypeName}\";\n" );
-                            fwrite( $this->oFh, "CREATE TYPE " . $customType . ";\n" );
+                        fwrite( $this->oFh, "\nDROP TABLE IF EXISTS \"{$this->tableFields['name']}\";\n" );
+    
+                        if (array_key_exists( "types", $this->tableFields )) {
+                            foreach ($this->tableFields["types"] as $customTypeName => $customType) {
+                                fwrite( $this->oFh, "DROP TYPE IF EXISTS \"{$customTypeName}\";\n" );
+                                fwrite( $this->oFh, "CREATE TYPE " . $customType . ";\n" );
+                            }
                         }
-                    }
-
-                    fwrite( $this->oFh, "\nCREATE TABLE \"{$this->tableFields['name']}\" (\n" );
-                    fwrite( $this->oFh, "\t" );
-                    fwrite( $this->oFh, join( ",\n\t", $this->tableFields["fields"] ) );
-
-                    if ( ! empty( $this->tableFields["primary"] )) {
-                        fwrite(
-                            $this->oFh,
-                            ",\n\t" . 'PRIMARY KEY ("' . join( '","', $this->tableFields["primary"] ) . '")' . "\n"
-                        );
-                    }
-                    fwrite( $this->oFh, "\n);\n" );
-
-                    if (array_key_exists( "key", $this->tableFields )) {
-                        foreach ($this->tableFields["key"] as $keyName => $keyData) {
-                            $indexName = $this->tableFields['name'] . "_" . $keyName;
+    
+                        fwrite( $this->oFh, "\nCREATE TABLE \"{$this->tableFields['name']}\" (\n" );
+                        fwrite( $this->oFh, "\t" );
+                        fwrite( $this->oFh, join( ",\n\t", $this->tableFields["fields"] ) );
+    
+                        if ( ! empty( $this->tableFields["primary"] )) {
                             fwrite(
                                 $this->oFh,
-                                "DROP INDEX IF EXISTS \"{$indexName}\";\n"
-                            );
-                            $fields = $keyData['fields'];
-                            array_walk( $fields, function ( &$item, $key ) {
-                                $item = "\"" . $item . "\"";
-                            } );
-                            fwrite(
-                                $this->oFh,
-                                "CREATE " . ( $keyData["uniq"] ? "UNIQUE " : "" ) . "INDEX \"" . $indexName . "\" ON \"{$this->tableFields['name']}\" (" . join(
-                                    ",",
-                                    $fields
-                                ) . ");\n"
+                                ",\n\t" . 'PRIMARY KEY ("' . join( '","', $this->tableFields["primary"] ) . '")' . "\n"
                             );
                         }
-                    }
-                    if ($this->seq) {
-                        fwrite( $this->oFh, $this->seq );
-                        $this->seq = false;
-                    }
+                        fwrite( $this->oFh, "\n);\n" );
+    
+                        if (array_key_exists( "key", $this->tableFields )) {
+                            foreach ($this->tableFields["key"] as $keyName => $keyData) {
+                                $indexName = $this->tableFields['name'] . "_" . $keyName;
+                                fwrite(
+                                    $this->oFh,
+                                    "DROP INDEX IF EXISTS \"{$indexName}\";\n"
+                                );
+                                $fields = $keyData['fields'];
+                                array_walk( $fields, function ( &$item, $key ) {
+                                    $item = "\"" . $item . "\"";
+                                } );
+                                fwrite(
+                                    $this->oFh,
+                                    "CREATE " . ( $keyData["uniq"] ? "UNIQUE " : "" ) . "INDEX \"" . $indexName . "\" ON \"{$this->tableFields['name']}\" (" . join(
+                                        ",",
+                                        $fields
+                                    ) . ");\n"
+                                );
+                            }
+                        }
+                        if ($this->seq) {
+                            fwrite( $this->oFh, $this->seq );
+                            $this->seq = false;
+                        }
+					}
                     break;
                 case "table_data":
                     $this->tableData = false;
@@ -215,13 +219,20 @@
                             $this->oFh, ",\n"
                         );
                     }
+                    foreach ($this->row as $n=>&$v) {
+						if (($v=='') && ($this->tableFields['null'][$n]===true)) {
+                            $v = 'NULL';
+						} else {
+							$v = "'".pg_escape_string($v)."'";
+						}
+					}
+					unset($v);
+
                     fwrite(
                         $this->oFh,
-                        "('" . join(
-                            "','",
-                            $this->row
-                        ) . "')"
+                        "(" . implode(', ', $this->row). ")"
                     );
+                    
                     $this->batchCount ++;
                     break;
                 case "field":
@@ -235,11 +246,10 @@
         private function data( $parser, $data )
         {
             if ($this->tableData && $this->fieldOpen) {
-                $data = addslashes( $data );
                 if ("0000-00-00 00:00:00" == $data) {
                     $data = "1971-01-01 00:00:01";
                 }
-                $this->row[$this->lastRow] = $data;
+                $this->row[$this->lastRow] = ((isset($this->row[$this->lastRow])) ? $this->row[$this->lastRow] : '') . $data;
 
             }
         }
@@ -265,6 +275,10 @@
                     $fieldStr .= "smallint ";
                 } elseif (substr( $attrs['Type'], 0, 5 ) == "float") {
                     $fieldStr .= "real ";
+                } elseif (substr( $attrs['Type'], 0, 4 ) == "blob") {
+                    $fieldStr .= "bytea ";
+                } elseif (substr( $attrs['Type'], 0, 7 ) == "varchar") {
+                    $fieldStr .= "text ";
                 } elseif (( $attrs['Type'] == "datetime" ) || ( $attrs['Type'] == "timestamp" )) {
                     $fieldStr .= "{$this->timestampType} ";
                 } elseif (( $attrs['Type'] == "mediumtext" ) || ( $attrs['Type'] == "tinytext" ) || ( $attrs['Type'] == "longtext" )
@@ -280,10 +294,13 @@
                 }
 
                 //Set extra field
+                $null = true;
                 if ($attrs['Null'] == "NO") {
                     $fieldStr .= "NOT NULL ";
+                    $null = false;
                 }
                 $this->tableFields["fields"][] = $fieldStr;
+                $this->tableFields["null"][$attrs['Field']] = $null;
 
                 if ($attrs['Key'] == "PRI") {
                     $this->tableFields["primary"][] = $attrs['Field'];

@@ -83,7 +83,8 @@
             echo "\nProcess:0%\r";
             while ($data = fread( $this->iFh, 4096 )) {
 
-                echo $data . "\n";
+
+                $this->processBlock( $data );
 
                 $processed += 4096;
                 $percentage = round( $processed / $totalFileSize * 100, 2 );
@@ -91,6 +92,22 @@
             }
             echo "\r";
             echo "Processed: 100%\n";
+        }
+
+
+        private function processBlock( $line )
+        {
+            $lines = explode( "\n", $line );
+            foreach ($lines as $line) {
+                if ($line) {
+                    $this->processLine( $line );
+                }
+            }
+        }
+
+        private function processLine( $line )
+        {
+
         }
 
         private function start( $parser, $name, $attrs )

@@ -17,3 +17,4 @@ Additional options
 Restriction
 
 This converter does not support foreign keys, because mysql does not return foreign key in xml dump 
+Also You must have installed locally php postgresql extension

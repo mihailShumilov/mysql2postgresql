@@ -275,6 +275,8 @@
                     $fieldStr .= "smallint ";
                 } elseif (substr( $attrs['Type'], 0, 5 ) == "float") {
                     $fieldStr .= "real ";
+                } elseif (substr( $attrs['Type'], 0, 7 ) == "decimal") {
+                    $fieldStr .= "decimal ";
                 } elseif (substr( $attrs['Type'], 0, 4 ) == "blob") {
                     $fieldStr .= "bytea ";
                 } elseif (substr( $attrs['Type'], 0, 7 ) == "varchar") {

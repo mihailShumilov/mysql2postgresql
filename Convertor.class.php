@@ -52,19 +52,14 @@
 
         private function checkFiles()
         {
-            if (file_exists( $this->iFileName )) {
-                if ($this->iFh = @fopen( $this->iFileName, "r" )) {
-                    //if input file success try to open output file
-                    if ($this->oFh = @fopen( $this->oFileName, "w+" )) {
-
-                    } else {
-                        throw new Exception( "Can't open `{$this->oFileName}` to write" );
-                    }
-                } else {
-                    throw new Exception( "Can't open `{$this->iFileName}`" );
-                }
-            } else {
-                throw new Exception( "File `{$this->iFileName}` does not exists" );
+            if (!file_exists( $this->iFileName )) {
+                throw new RuntimeException( "File `{$this->iFileName}` does not exists" );
+            }
+            if (!$this->iFh = @fopen( $this->iFileName, "r" )) {
+            	throw new RuntimeException( "Can't open `{$this->iFileName}`" );
+            }
+            if (!$this->oFh = @fopen( $this->oFileName, "w+" )) {
+                throw new RuntimeException( "Can't open `{$this->oFileName}` to write" );
             }
         }
 

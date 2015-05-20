@@ -296,6 +296,12 @@
                     $fieldStr .= "NOT NULL ";
                     $null = false;
                 }
+
+                if (isset($attrs['Default'])) {
+                    //TODO: See more cases!
+                    $fieldStr .= " DEFAULT ".$attrs['Default'];
+                }
+
                 $this->tableFields["fields"][] = $fieldStr;
                 $this->tableFields["null"][$attrs['Field']] = $null;
 

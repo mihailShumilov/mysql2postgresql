@@ -27,6 +27,9 @@
         private $insertRowField = array();
         private $maxBatchCount = 200;
         private $batchCount = 0;
+        private $defaultWords = array(
+            'CURRENT_TIMESTAMP'
+        );
 
         public function __construct( $params )
         {
@@ -298,8 +301,14 @@
                 }
 
                 if (isset($attrs['Default'])) {
-                    //TODO: See more cases!
-                    $fieldStr .= " DEFAULT ".$attrs['Default'];
+                    if($attrs['Default'] != "") {
+                        //TODO: See more cases!
+                        if(is_numeric($attrs['Default']) || in_array($attrs['Default'], $this->defaultWords)) {
+                            $fieldStr .= " DEFAULT ".$attrs['Default'];
+                        } else {
+                            $fieldStr .= " DEFAULT '".$attrs['Default']."'";
+                        }
+                    }
                 }
 
                 $this->tableFields["fields"][] = $fieldStr;

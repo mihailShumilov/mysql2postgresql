@@ -221,7 +221,7 @@
                         if (( $v == '' ) && ( isset( $this->tableFields['null'] ) ) && ( $this->tableFields['null'][$n] === true )) {
                             $v = 'NULL';
 						} else {
-							$v = "'".pg_escape_string($v)."'";
+							$v = "'".$v."'";
 						}
 					}
 					unset($v);

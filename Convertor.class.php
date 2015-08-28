@@ -244,8 +244,8 @@
         private function data( $parser, $data )
         {
             if ($this->tableData && $this->fieldOpen) {
-                if ("0000-00-00 00:00:00" == $data) {
-                    $data = "1971-01-01 00:00:01";
+                if ("0000-00-00 00:00:00" == $data or "0000-00-00" == $data) {
+                    $data = null;
                 }
                 $this->row[$this->lastRow] = ((isset($this->row[$this->lastRow])) ? $this->row[$this->lastRow] : '') . $data;
 

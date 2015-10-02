@@ -141,8 +141,8 @@
     
                         if (array_key_exists( "types", $this->tableFields )) {
                             foreach ($this->tableFields["types"] as $customTypeName => $customType) {
-                                fwrite( $this->oFh, "DROP TYPE IF EXISTS \"{$customTypeName}\";\n" );
-                                fwrite( $this->oFh, "CREATE TYPE " . $customType . ";\n" );
+                                fwrite( $this->oFh, "DROP TYPE IF EXISTS \"" . trim($customTypeName,"\"") . "\";\n" );
+                                fwrite( $this->oFh, "CREATE TYPE " . str_replace('""','"',$customType) . ";\n" );
                             }
                         }
     
@@ -286,7 +286,7 @@
                     $fieldStr .= "text ";
                 } elseif (substr( $attrs['Type'], 0, 4 ) == "enum") {
                     //Create custom type
-                    $dataType                              = $this->tableFields['name'] . "_enum_" . $attrs['Field'];
+                    $dataType                              = "\"" . $this->tableFields['name'] . "_enum_" . $attrs['Field'] . "\"";
                     $this->tableFields["types"][$dataType] = "\"" . $dataType . "\" as " . $attrs['Type'];
                     $fieldStr .= $dataType . " ";
                 } else {

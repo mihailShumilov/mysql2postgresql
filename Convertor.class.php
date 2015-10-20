@@ -143,18 +143,18 @@
 					if ($this->exportStructure) {
 
                         fwrite( $this->oFh, "\nDROP TABLE IF EXISTS \"{$this->tableFields['name']}\";\n" );
-
+    
                         if (array_key_exists( "types", $this->tableFields )) {
                             foreach ($this->tableFields["types"] as $customTypeName => $customType) {
-                                fwrite( $this->oFh, "DROP TYPE IF EXISTS \"{$customTypeName}\";\n" );
-                                fwrite( $this->oFh, "CREATE TYPE " . $customType . ";\n" );
+                                fwrite( $this->oFh, "DROP TYPE IF EXISTS \"" . trim($customTypeName,"\"") . "\";\n" );
+                                fwrite( $this->oFh, "CREATE TYPE " . str_replace('""','"',$customType) . ";\n" );
                             }
                         }
-
+    
                         fwrite( $this->oFh, "\nCREATE TABLE \"{$this->tableFields['name']}\" (\n" );
                         fwrite( $this->oFh, "\t" );
                         fwrite( $this->oFh, join( ",\n\t", $this->tableFields["fields"] ) );
-
+    
                         if ( ! empty( $this->tableFields["primary"] )) {
                             fwrite(
                                 $this->oFh,
@@ -162,7 +162,7 @@
                             );
                         }
                         fwrite( $this->oFh, "\n);\n" );
-
+    
                         if (array_key_exists( "key", $this->tableFields )) {
                             foreach ($this->tableFields["key"] as $keyName => $keyData) {
                                 $indexName = $this->tableFields['name'] . "_" . $keyName;
@@ -235,7 +235,7 @@
                         $this->oFh,
                         "(" . implode(', ', $this->row). ")"
                     );
-
+                    
                     $this->batchCount ++;
                     break;
                 case "field":
@@ -291,7 +291,7 @@
                     $fieldStr .= "text ";
                 } elseif (substr( $attrs['Type'], 0, 4 ) == "enum") {
                     //Create custom type
-                    $dataType                              = $this->tableFields['name'] . "_enum_" . $attrs['Field'];
+                    $dataType                              = "\"" . $this->tableFields['name'] . "_enum_" . $attrs['Field'] . "\"";
                     $this->tableFields["types"][$dataType] = "\"" . $dataType . "\" as " . $attrs['Type'];
                     $fieldStr .= $dataType . " ";
                 } else {

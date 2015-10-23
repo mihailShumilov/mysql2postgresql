@@ -12,6 +12,7 @@ Usage
 Additional options
 
 * `-b50` - set batch count (used on insert data). By default batch count = 200
+* `-n` - non export structure
 
 
 Restriction

@@ -11,7 +11,7 @@
 
         private $iFileName;
         private $oFileName;
-        private $exportStructure = true;
+        private $exportStructure;
 
         private $iFh;
         private $oFh;
@@ -49,6 +49,11 @@
                 } else {
                     throw new Exception( "Parameter `batchCount` must be positive integer" );
                 }
+            }
+            if (isset( $params['exportStructure'] )) {
+                $this->exportStructure = $params['exportStructure'];
+            } else {
+                throw new Exception( "Export database structure not set" );
             }
             $this->checkFiles();
         }

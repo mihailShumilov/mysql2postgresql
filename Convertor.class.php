@@ -283,7 +283,10 @@
                 } elseif (substr( $attrs['Type'], 0, 4 ) == "blob") {
                     $fieldStr .= "bytea ";
                 } elseif (substr( $attrs['Type'], 0, 7 ) == "varchar") {
-                    $fieldStr .= "text ";
+                    $varcharLen = array();
+                    preg_match('/\(([0-9]+)\)/', $attrs['Type'], $varcharLen);
+                    $varcharLen = isset($varcharLen[1]) ? $varcharLen[1] : "0";
+                    $fieldStr .= "varchar({$varcharLen}) ";
                 } elseif (( $attrs['Type'] == "datetime" ) || ( $attrs['Type'] == "timestamp" )) {
                     $fieldStr .= "{$this->timestampType} ";
                 } elseif (( $attrs['Type'] == "mediumtext" ) || ( $attrs['Type'] == "tinytext" ) || ( $attrs['Type'] == "longtext" )

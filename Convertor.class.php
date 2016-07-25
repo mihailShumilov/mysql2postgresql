@@ -335,10 +335,11 @@
                 if (isset($attrs['Default'])) {
                     if ($attrs['Default'] != "") {
                         //TODO: See more cases!
-                        if (is_numeric($attrs['Default']) || in_array($attrs['Default'], $this->defaultWords)) {
-                            $fieldStr .= " DEFAULT ".$attrs['Default'];
+                        if (substr($attrs['Type'], 0, 4) != "enum"
+                            && (is_numeric($attrs['Default']) || in_array($attrs['Default'], $this->defaultWords))) {
+                            $fieldStr .= " DEFAULT " . $attrs['Default'];
                         } else {
-                            $fieldStr .= " DEFAULT '".$attrs['Default']."'";
+                            $fieldStr .= " DEFAULT '" . $attrs['Default'] . "'";
                         }
                     }
                 }

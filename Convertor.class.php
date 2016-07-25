@@ -286,7 +286,8 @@
                 //Set field type
                 if ($attrs['Extra'] == "auto_increment") {
                     $fieldStr .= "serial ";
-                } elseif (substr($attrs['Type'], 0, 3) == "int") {
+                } elseif (substr($attrs['Type'], 0, 3) == "int"
+                    || substr($attrs['Type'], 0, 9) == "mediumint") {
                     $fieldStr .= "integer ";
                 } elseif (substr($attrs['Type'], 0, 6) == "bigint") {
                     $fieldStr .= "bigint ";

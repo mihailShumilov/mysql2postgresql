@@ -286,7 +286,8 @@
                 //Set field type
                 if ($attrs['Extra'] == "auto_increment") {
                     $fieldStr .= "serial ";
-                } elseif (substr($attrs['Type'], 0, 3) == "int") {
+                } elseif (substr($attrs['Type'], 0, 3) == "int"
+                    || substr($attrs['Type'], 0, 9) == "mediumint") {
                     $fieldStr .= "integer ";
                 } elseif (substr($attrs['Type'], 0, 6) == "bigint") {
                     $fieldStr .= "bigint ";
@@ -334,10 +335,11 @@
                 if (isset($attrs['Default'])) {
                     if ($attrs['Default'] != "") {
                         //TODO: See more cases!
-                        if (is_numeric($attrs['Default']) || in_array($attrs['Default'], $this->defaultWords)) {
-                            $fieldStr .= " DEFAULT ".$attrs['Default'];
+                        if (substr($attrs['Type'], 0, 4) != "enum"
+                            && (is_numeric($attrs['Default']) || in_array($attrs['Default'], $this->defaultWords))) {
+                            $fieldStr .= " DEFAULT " . $attrs['Default'];
                         } else {
-                            $fieldStr .= " DEFAULT '".$attrs['Default']."'";
+                            $fieldStr .= " DEFAULT '" . $attrs['Default'] . "'";
                         }
                     }
                 }

@@ -17,6 +17,8 @@
         private $oFh;
 
         private $tableFields = array();
+        private $comment4Field  = array();
+        private $comment4Table  = '';
         private $row = array();
         private $lastTable = null;
         private $lastRow = null;
@@ -131,6 +133,9 @@
                     if (isset($attrs['Auto_increment'])) {
                         $this->setSeqValue($attrs);
                     }
+                    if (isset($attrs['Comment']) && strlen($attrs['Comment']) > 0) {
+                        $this->comment4Table = $attrs['Comment'];
+                    }
                     break;
             }
         }
@@ -186,6 +191,23 @@
                             fwrite($this->oFh, $this->seq);
                             $this->seq = false;
                         }
+
+                        if (count($this->comment4Field)) {
+                            fwrite($this->oFh, "\n");
+                            foreach ($this->comment4Field as $field => $comment) {
+                                $comment_field = sprintf("COMMENT ON COLUMN %s.%s IS '%s';\n",
+                                    $this->tableFields['name'], $field, addslashes($comment));
+                                fwrite($this->oFh, $comment_field);
+                            }
+                        }
+                        if ($this->comment4Table) {
+                            fwrite($this->oFh,
+                                sprintf("COMMENT ON TABLE %s IS '%s'\n",
+                                    $this->tableFields['name'], addslashes($this->comment4Table)));
+                        }
+
+                        $this->comment4Field = array();
+                        $this->comment4Table = '';
                     }
                     break;
                 case "table_data":
@@ -325,6 +347,10 @@
 
                 if ($attrs['Key'] == "PRI") {
                     $this->tableFields["primary"][] = $attrs['Field'];
+                }
+
+                if (isset($attrs['Comment']) && strlen($attrs['Comment']) > 0) {
+                    $this->comment4Field[$attrs['Field']] = $attrs['Comment'];
                 }
             }
         }

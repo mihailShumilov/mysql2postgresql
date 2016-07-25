@@ -202,7 +202,7 @@
                         }
                         if ($this->comment4Table) {
                             fwrite($this->oFh,
-                                sprintf("COMMENT ON TABLE %s IS '%s'\n",
+                                sprintf("COMMENT ON TABLE %s IS '%s';\n",
                                     $this->tableFields['name'], addslashes($this->comment4Table)));
                         }
 

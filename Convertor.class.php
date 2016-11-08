@@ -92,7 +92,13 @@
 
             echo "\nProcess:0%\r";
             while ($data = fread($this->iFh, 4096)) {
-                xml_parse($xml, $data, feof($this->iFh)) or die("Can't parse XML data");
+                if(xml_parse($xml, $data, feof($this->iFh))==0){
+			echo("Error: ".xml_error_string(xml_get_error_code($xml))."\n");
+			echo("Errored line: ".xml_get_current_line_number($xml)."\n");
+			echo("Errored column: ".xml_get_current_column_number($xml)."\n");
+			echo("Errored index: ".xml_get_current_byte_index($xml)."\n");
+			die("Can't parse XML data\n");
+		}
                 $processed += 4096;
                 $percentage = round($processed / $totalFileSize * 100, 2);
                 echo "Processed: {$percentage}%\r";

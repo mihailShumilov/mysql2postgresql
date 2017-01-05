@@ -9,6 +9,7 @@
     class Convertor
     {
 
+
         private $iFileName;
         private $oFileName;
         private $exportStructure;

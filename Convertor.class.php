@@ -92,6 +92,7 @@
 
             echo "\nProcess:0%\r";
             while ($data = fread($this->iFh, 4096)) {
+		$data = str_replace(chr(27), '', $data);
                 if(xml_parse($xml, $data, feof($this->iFh))==0){
 			echo("Error: ".xml_error_string(xml_get_error_code($xml))."\n");
 			echo("Errored line: ".xml_get_current_line_number($xml)."\n");
@@ -340,6 +341,7 @@
 
                 if (isset($attrs['Default'])) {
                     if ($attrs['Default'] != "") {
+			if($attrs['Default'] == '0000-00-00 00:00:00') $attrs['Default'] = '1971-01-01 00:00:01';
                         //TODO: See more cases!
                         if (substr($attrs['Type'], 0, 4) != "enum"
                             && (is_numeric($attrs['Default']) || in_array($attrs['Default'], $this->defaultWords))) {

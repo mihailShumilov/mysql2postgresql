@@ -92,7 +92,7 @@
 
             echo "\nProcess:0%\r";
             while ($data = fread($this->iFh, 4096)) {
-		$data = str_replace(chr(27), '', $data);
+		$data = str_replace(array(chr(7),chr(27)), '', $data);
                 if(xml_parse($xml, $data, feof($this->iFh))==0){
 			echo("Error: ".xml_error_string(xml_get_error_code($xml))."\n");
 			echo("Errored line: ".xml_get_current_line_number($xml)."\n");
